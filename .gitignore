@@ -1,1 +1,3 @@
 customer_churn/
+*pyc
+__pycache__/
