@@ -4,11 +4,12 @@ import pandas as pd
 import numpy as np
 import yaml
 import os
+import joblib
 
-current_path = os.getcwd()
+current_path = os.path.dirname(os.path.abspath(__file__))
 config_files_path = os.path.join(current_path, "../../config/config_files.yml" )
 
-with open(os.path.join(current_path,config_files_path ), 'r') as f:
+with open(config_files_path, 'r') as f:
     config = yaml.safe_load(f)
 
 
@@ -26,38 +27,37 @@ class Preprocess:
         Transform values of categorical features
 
         """
-        transformation_1_df = self.df
-        transformation_1_df["COLLEGE"].replace({'zero': 0,
-                               'one' : 1},
-                               inplace = True)
+        transformation_1_df = self.df.copy()
+        transformation_1_df["COLLEGE"] = transformation_1_df["COLLEGE"].replace({'zero': 0,
+                               'one' : 1})
 
-        transformation_1_df["LESSTHAN600k"].replace({False: 0,
-                                    True: 1},
-                                    inplace = True)
+        transformation_1_df["LESSTHAN600k"] = transformation_1_df["LESSTHAN600k"].replace({False: 0,
+                                    True: 1}
+                                   )
 
-        transformation_1_df["REPORTED_SATISFACTION"].replace({'very_unsat': 0,
+        transformation_1_df["REPORTED_SATISFACTION"] = transformation_1_df["REPORTED_SATISFACTION"].replace({'very_unsat': 0,
                                                     'unsat': 1,
                                                     'avg' : 2,
                                                     'sat': 3,
-                                                    'very_sat': 4},
-                                                    inplace = True)
-        transformation_1_df["REPORTED_USAGE_LEVEL"].replace({'very_little': 0,
+                                                    'very_sat': 4}
+                                                    )
+        transformation_1_df["REPORTED_USAGE_LEVEL"]= transformation_1_df["REPORTED_USAGE_LEVEL"].replace({'very_little': 0,
                                              'little': 1,
                                              'avg' : 2,
                                              'high': 3,
-                                             'very_high': 4},
-                                             inplace = True)
+                                             'very_high': 4}
+                                             )
 
-        transformation_1_df["CONSIDERING_CHANGE_OF_PLAN"].replace({'actively_looking_into_it': 0,
+        transformation_1_df["CONSIDERING_CHANGE_OF_PLAN"]= transformation_1_df["CONSIDERING_CHANGE_OF_PLAN"].replace({'actively_looking_into_it': 0,
                                                     'considering': 1,
                                                     'perhaps' : 2,
                                                     'no': 3,
-                                                    'never_thought': 4},
-                                                    inplace = True)
-        transformation_1_df["CHURNED"].replace({'STAY': 0,
-                                    'LEAVE' : 1},
-                                    inplace = True)
-        return transformation_1_df
+                                                    'never_thought': 4}
+                                                    )
+       
+        self.df = transformation_1_df
+
+        return self.df
         
     def features_transformation(self):
         """
@@ -65,11 +65,12 @@ class Preprocess:
         prediction
 
         """
+        # object loading
+        imputer_cat = joblib.load(os.path.join(current_path, config["files_path"]["imputer_cat"]))
+        imputer_quant = joblib.load(os.path.join(current_path, config["files_path"]["imputer_quant"]))
+        encoder = joblib.load(os.path.join(current_path, config["files_path"]["encoder_path"]))
+        standard = joblib.load(os.path.join(current_path, config["files_path"]["standardization"]))
 
-        imputer_cat = config["files_path"]["imputer_cat"]
-        imputer_quant = config["files_path"]["imputer_quant"]
-        encoder = config["files_path"]["encoder_path"]
-        standard = config["files_path"]["standardization"]
         categoricals_variables = ['COLLEGE',
                                     'LESSTHAN600k',
                                     'JOB_CLASS',
@@ -89,7 +90,7 @@ class Preprocess:
                                     'TIME_CLIENT',
                                     'AVERAGE_CALL_DURATION']
 
-        transformation_2_df = self.df
+        transformation_2_df = self.df.copy()
 
         transformation_2_df_cat = imputer_cat.transform(transformation_2_df[categoricals_variables])
         transformation_2_df_cat = pd.DataFrame(transformation_2_df_cat, columns = categoricals_variables)
@@ -98,8 +99,10 @@ class Preprocess:
         variables = encoder.get_feature_names_out()
         cat_2 = pd.DataFrame(cat_2.toarray(), columns =variables )
 
-        var2 = [var for var in categoricals_variables if var != "JOB_CLASS"]
+        for var in variables :
+            cat_2[var] = cat_2[var].astype("int")
 
+        var2 = [var for var in categoricals_variables if var != "JOB_CLASS"]
         transformation_2_df_cat = pd.concat([transformation_2_df_cat[var2], cat_2], axis = 1)
         
 
@@ -113,6 +116,12 @@ class Preprocess:
 
         # data final
         transformation_final_df = pd.concat([transformation_2_df_quant, transformation_2_df_cat], axis = 1)
+        self.df = transformation_final_df.copy()
 
-        return transformation_final_df
+        return self.df
+    
+    def run(self):
+        self.values_transformation()
+        self.features_transformation()
+        return self.df
                 

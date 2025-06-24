@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 class Customer_features(BaseModel):
      CUSTOMER_ID : str
-     COLLEGE : bool
+     COLLEGE : object
      DATA : float
      INCOME : float
      OVERCHARGE : int
