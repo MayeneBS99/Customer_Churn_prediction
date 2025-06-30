@@ -1,11 +1,11 @@
 
 files_path :
-    model_path : ../src/models/xg_boost_model.joblib
-    model_full_path : c:/Users/mayen/ML_DL_PROJECTS/Customer_Churn_prediction/src/model
+    
+    model_full_path : c:/Users/mayen/ML_DL_PROJECTS/Customer_Churn_prediction/src/models/xg_boost_model.joblib
 
     encoder_path :  ../models/encoder.joblib
     imputer_quant:  ../models/imputer_quant.joblib
     imputer_cat :  ../models/imputer_cat.joblib
-    standardization :  ../models/standardisation.joblib  
+    standardization :  ../models/standard.joblib  
 
 

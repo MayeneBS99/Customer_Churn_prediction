@@ -29,31 +29,31 @@ class Preprocess:
         """
         transformation_1_df = self.df.copy()
         transformation_1_df["COLLEGE"] = transformation_1_df["COLLEGE"].replace({'zero': 0,
-                               'one' : 1})
+                               'one' : 1}).astype(int)
 
-        transformation_1_df["LESSTHAN600k"] = transformation_1_df["LESSTHAN600k"].replace({False: 0,
-                                    True: 1}
-                                   )
+        transformation_1_df["LESSTHAN600k"] = transformation_1_df["LESSTHAN600k"].replace({'False': 0,
+                                    'True': 1}
+                                   ).astype(int)
 
         transformation_1_df["REPORTED_SATISFACTION"] = transformation_1_df["REPORTED_SATISFACTION"].replace({'very_unsat': 0,
                                                     'unsat': 1,
                                                     'avg' : 2,
                                                     'sat': 3,
                                                     'very_sat': 4}
-                                                    )
+                                                    ).astype(int)
         transformation_1_df["REPORTED_USAGE_LEVEL"]= transformation_1_df["REPORTED_USAGE_LEVEL"].replace({'very_little': 0,
                                              'little': 1,
                                              'avg' : 2,
                                              'high': 3,
                                              'very_high': 4}
-                                             )
+                                             ).astype(int)
 
         transformation_1_df["CONSIDERING_CHANGE_OF_PLAN"]= transformation_1_df["CONSIDERING_CHANGE_OF_PLAN"].replace({'actively_looking_into_it': 0,
                                                     'considering': 1,
                                                     'perhaps' : 2,
                                                     'no': 3,
                                                     'never_thought': 4}
-                                                    )
+                                                    ).astype(int)
        
         self.df = transformation_1_df
 
@@ -116,8 +116,10 @@ class Preprocess:
 
         # data final
         transformation_final_df = pd.concat([transformation_2_df_quant, transformation_2_df_cat], axis = 1)
-        self.df = transformation_final_df.copy()
+        
+            
 
+        self.df = transformation_final_df.copy()
         return self.df
     
     def run(self):
